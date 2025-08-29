@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>封面五合一</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="favicon.png" type="image/png">
+    <style>
+        :root {
+            --accent-green: #00ff41;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: #000;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        .main-layout {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+        
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            padding-right: 370px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .sidebar {
+            width: 350px;
+            background: #111;
+            border-left: 1px solid #333;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            right: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .cover-container {
+            width: 100%;
+            max-width: 900px;
+            aspect-ratio: 3.35/1;
+            display: flex;
+            position: relative;
+            background: #000;
+            border: 1px solid #333;
+            overflow: hidden;
+        }
+
+        .main-cover {
+            width: 70.15%;
+            aspect-ratio: 2.35/1;
+            position: relative;
+            border-right: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .share-cover {
+            width: 29.85%;
+            aspect-ratio: 1/1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            position: relative;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .share-cover .text-row {
+            font-size: clamp(16px, 2.5vw, 32px);
+            line-height: 1.2;
+            letter-spacing: 0.1em;
+            font-weight: 900;
+            text-align: center;
+            color: #fff;
+            margin: 4px 0;
+            width: 100%;
+        }
+
+        .title-main {
+            font-size: clamp(20px, 3.5vw, 40px);
+            font-weight: 900;
+            line-height: 1.0;
+            text-align: left;
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .title-line {
+            display: block;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .title-line:nth-child(1) {
+            font-size: 1.2em;
+            color: var(--accent-green);
+        }
+
+        .title-line:nth-child(2) {
+            font-size: 0.8em;
+            opacity: 0.9;
+        }
+
+        .title-line:nth-child(3) {
+            font-size: 0.6em;
+            opacity: 0.7;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+        }
+
+        .accent-line {
+            position: absolute;
+            background: var(--accent-green);
+        }
+
+        .accent-line-1 {
+            width: 2px;
+            height: 60px;
+            top: 20px;
+            left: 20px;
+            transform: rotate(-45deg);
+        }
+
+        .accent-line-2 {
+            width: 40px;
+            height: 1px;
+            bottom: 30px;
+            right: 30px;
+        }
+
+        .corner-frame {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .corner-frame-1 {
+            top: 10px;
+            left: 10px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-frame-2 {
+            bottom: 10px;
+            right: 10px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .arrow-indicator {
+            position: absolute;
+            color: var(--accent-green);
+            opacity: 0.5;
+            font-size: 20px;
+        }
+
+        .arrow-1 {
+            top: 50%;
+            right: 25%;
+            transform: translateY(-50%) rotate(90deg);
+        }
+
+        .download-btn {
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: var(--accent-green);
+            color: #000;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,255,65,0.3);
+        }
+
+        .input-panel {
+            background: transparent;
+            border: none;
+            padding: 0;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-label {
+            display: block;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 10px;
+            color: #fff;
+            font-size: 14px;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 2px rgba(0,255,65,0.2);
+        }
+
+        .textarea-field {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .covers-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .cover-item {
+            width: 100%;
+        }
+
+        .cover-title {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .ratio-3-35-1 {
+            aspect-ratio: 3.35/1;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .ratio-16-9 {
+            aspect-ratio: 16/9;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .ratio-9-16 {
+            aspect-ratio: 9/16;
+            display: flex;
+            flex-direction: column;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .ratio-3-4 {
+            aspect-ratio: 3/4;
+            display: flex;
+            flex-direction: column;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .ratio-4-3 {
+            aspect-ratio: 4/3;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .single-main-cover {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+                @media (max-width: 1200px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                border-left: none;
+                border-bottom: 1px solid #333;
+                order: -1;
+            }
+            
+            .content-area {
+                padding-right: 20px;
+            }
+            
+            .main-layout {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .content-area {
+                padding: 10px;
+            }
+            
+            .main-cover {
+                padding: 10px;
+            }
+            
+            .title-main {
+                font-size: clamp(16px, 3vw, 32px);
+            }
+            
+            .share-cover .text-row {
+                font-size: clamp(14px, 2vw, 24px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-layout">
+        <!-- 主内容区域 -->
+        <div class="content-area">
+            <!-- 封面预览区域 -->
+        <div class="covers-grid">
+            <!-- 3.35:1 公众号封面 -->
+            <div class="cover-item">
+                <h3 class="cover-title">3.35:1 (公众号封面)</h3>
+                <div class="cover-container ratio-3-35-1" data-ratio="3.35:1">
+                    <div class="main-cover">
+                        <div class="grid-overlay"></div>
+                        <div class="corner-frame corner-frame-1"></div>
+                        <div class="corner-frame corner-frame-2"></div>
+                        <div class="accent-line accent-line-1"></div>
+                        <div class="accent-line accent-line-2"></div>
+                        <div class="title-main" data-target="main-title">
+                            <span class="title-line">高级感！</span>
+                            <span class="title-line">用AI写网页做封面图片</span>
+                            <span class="title-line">全尺寸一键搞定！</span>
+                            <span class="title-line">高级·高效·高颜</span>
+                        </div>
+                        <i class="fas fa-arrow-down arrow-indicator arrow-1"></i>
+                    </div>
+                    <div class="share-cover" data-target="share-text">
+                        <div class="grid-overlay"></div>
+                        <div class="text-row">分享封面</div>
+                        <div class="text-row">两行四字</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 16:9 横屏封面 -->
+            <div class="cover-item">
+                <h3 class="cover-title">16:9 (横屏)</h3>
+                <div class="cover-container ratio-16-9" data-ratio="16:9">
+                    <div class="single-main-cover">
+                        <div class="grid-overlay"></div>
+                        <div class="corner-frame corner-frame-1"></div>
+                        <div class="corner-frame corner-frame-2"></div>
+                        <div class="accent-line accent-line-1"></div>
+                        <div class="accent-line accent-line-2"></div>
+                        <div class="title-main" data-target="main-title">
+                            <span class="title-line">高级感！</span>
+                            <span class="title-line">用AI写网页做封面图片</span>
+                            <span class="title-line">全尺寸一键搞定！</span>
+                            <span class="title-line">高级·高效·高颜</span>
+                        </div>
+                        <i class="fas fa-arrow-down arrow-indicator arrow-1"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 9:16 竖屏封面 -->
+            <div class="cover-item">
+                <h3 class="cover-title">9:16 (竖屏)</h3>
+                <div class="cover-container ratio-9-16" data-ratio="9:16">
+                    <div class="single-main-cover">
+                        <div class="grid-overlay"></div>
+                        <div class="corner-frame corner-frame-1"></div>
+                        <div class="corner-frame corner-frame-2"></div>
+                        <div class="accent-line accent-line-1"></div>
+                        <div class="accent-line accent-line-2"></div>
+                        <div class="title-main" data-target="main-title">
+                            <span class="title-line">高级感！</span>
+                            <span class="title-line">用AI写网页做封面图片</span>
+                            <span class="title-line">全尺寸一键搞定！</span>
+                            <span class="title-line">高级·高效·高颜</span>
+                        </div>
+                        <i class="fas fa-arrow-down arrow-indicator arrow-1"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3:4 竖屏封面 -->
+            <div class="cover-item">
+                <h3 class="cover-title">3:4 (竖屏)</h3>
+                <div class="cover-container ratio-3-4" data-ratio="3:4">
+                    <div class="single-main-cover">
+                        <div class="grid-overlay"></div>
+                        <div class="corner-frame corner-frame-1"></div>
+                        <div class="corner-frame corner-frame-2"></div>
+                        <div class="accent-line accent-line-1"></div>
+                        <div class="accent-line accent-line-2"></div>
+                        <div class="title-main" data-target="main-title">
+                            <span class="title-line">高级感！</span>
+                            <span class="title-line">用AI写网页做封面图片</span>
+                            <span class="title-line">全尺寸一键搞定！</span>
+                            <span class="title-line">高级·高效·高颜</span>
+                        </div>
+                        <i class="fas fa-arrow-down arrow-indicator arrow-1"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4:3 横屏封面 -->
+            <div class="cover-item">
+                <h3 class="cover-title">4:3 (横屏)</h3>
+                <div class="cover-container ratio-4-3" data-ratio="4:3">
+                    <div class="single-main-cover">
+                        <div class="grid-overlay"></div>
+                        <div class="corner-frame corner-frame-1"></div>
+                        <div class="corner-frame corner-frame-2"></div>
+                        <div class="accent-line accent-line-1"></div>
+                        <div class="accent-line accent-line-2"></div>
+                        <div class="title-main" data-target="main-title">
+                            <span class="title-line">高级感！</span>
+                            <span class="title-line">用AI写网页做封面图片</span>
+                            <span class="title-line">全尺寸一键搞定！</span>
+                            <span class="title-line">高级·高效·高颜</span>
+                        </div>
+                        <i class="fas fa-arrow-down arrow-indicator arrow-1"></i>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        
+        <!-- 右侧边栏 -->
+        <div class="sidebar">
+            <!-- 输入面板 -->
+            <div class="input-panel">
+                <div class="input-group">
+                    <label class="input-label">主封面标题（每行一个）</label>
+                    <textarea class="input-field textarea-field" id="mainTitle" placeholder="请输入主封面标题，每行一个内容，最多4行">高级感！
+用AI写网页做封面图片
+全尺寸一键搞定！
+高级·高效·高颜</textarea>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">分享封面文字（两行，空格分隔，4字以内）</label>
+                    <input type="text" class="input-field" id="shareText" placeholder="请输入分享封面文字，用空格分隔两行，如：分享封面 两行四字" value="分享封面 两行四字" maxlength="10">
+                </div>
+            </div>
+            
+            <button class="download-btn" onclick="downloadImage()">
+                <i class="fas fa-download mr-2"></i>下载所有尺寸
+            </button>
+            <p class="text-sm text-gray-400 mt-4 text-right">创意来自@归藏</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        // 配置对象
+        const config = {
+            colors: [
+                '#00ff41', '#ff0080', '#00bfff', '#ff6b35', 
+                '#9d4edd', '#06ffa5', '#ffbe0b', '#fb5607'
+            ]
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            updateAllDisplays();
+        });
+
+        function setupEventListeners() {
+            // 文字输入监听
+            document.getElementById('mainTitle').addEventListener('input', updateAllDisplays);
+            document.getElementById('shareText').addEventListener('input', updateAllDisplays);
+        }
+
+        function updateAllDisplays() {
+            updateMainTitles();
+            updateShareTexts();
+            applyDynamicStyling();
+        }
+
+        function updateMainTitles() {
+            const titleText = document.getElementById('mainTitle').value;
+            const lines = titleText.split('\n').filter(line => line.trim()).slice(0, 4);
+            
+            // 更新所有主标题显示
+            document.querySelectorAll('[data-target="main-title"]').forEach(titleDisplay => {
+                titleDisplay.innerHTML = '';
+                lines.forEach((line, index) => {
+                    const span = document.createElement('span');
+                    span.className = 'title-line';
+                    span.textContent = line.trim();
+                    titleDisplay.appendChild(span);
+                });
+            });
+        }
+
+        function updateShareTexts() {
+            const shareText = document.getElementById('shareText').value;
+            const lines = shareText.split(' ').filter(line => line.trim()).slice(0, 2);
+            
+            // 确保有两行，如果只有一行则添加空行
+            while (lines.length < 2) {
+                lines.push('');
+            }
+            
+            // 每行最多4个字
+            const processedLines = lines.map(line => line.slice(0, 4));
+            
+            // 更新所有分享文字显示
+            document.querySelectorAll('[data-target="share-text"]').forEach(shareDisplay => {
+                const gridOverlay = shareDisplay.querySelector('.grid-overlay');
+                
+                // 清空现有内容但保留grid-overlay
+                shareDisplay.innerHTML = '';
+                shareDisplay.appendChild(gridOverlay);
+                
+                processedLines.forEach(line => {
+                    const div = document.createElement('div');
+                    div.className = 'text-row';
+                    div.textContent = line;
+                    shareDisplay.appendChild(div);
+                });
+            });
+        }
+
+        function applyDynamicStyling() {
+            const titleText = document.getElementById('mainTitle').value;
+            const shareText = document.getElementById('shareText').value;
+            
+            // 基于文字内容选择颜色
+            const colorIndex = (titleText.length + shareText.length) % config.colors.length;
+            const accentColor = config.colors[colorIndex];
+            
+            // 更新CSS变量
+            document.documentElement.style.setProperty('--accent-green', accentColor);
+            
+            // 动态调整字体大小
+            const titleLines = titleText.split('\n').filter(line => line.trim());
+            const maxLineLength = Math.max(...titleLines.map(line => line.length));
+            
+            let fontSize = 'clamp(20px, 3.5vw, 40px)';
+            if (maxLineLength > 20) {
+                fontSize = 'clamp(16px, 3vw, 32px)';
+            } else if (maxLineLength > 15) {
+                fontSize = 'clamp(18px, 3.2vw, 36px)';
+            }
+            
+            // 应用到所有标题
+            document.querySelectorAll('.title-main').forEach(titleMain => {
+                titleMain.style.fontSize = fontSize;
+            });
+        }
+
+        async function downloadImage() {
+            const zip = new JSZip();
+            const containers = document.querySelectorAll('.cover-container');
+            
+            for (let i = 0; i < containers.length; i++) {
+                const container = containers[i];
+                const ratio = container.dataset.ratio;
+                
+                try {
+                    const canvas = await html2canvas(container, {
+                        backgroundColor: '#000000',
+                        scale: 2,
+                        useCORS: true,
+                        allowTaint: true,
+                        width: container.offsetWidth,
+                        height: container.offsetHeight
+                    });
+                    
+                    // 将canvas转换为blob
+                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                    zip.file(`封面_${ratio.replace(':', '-')}.png`, blob);
+                } catch (error) {
+                    console.error(`生成 ${ratio} 尺寸时出错:`, error);
+                }
+                
+                // 短暂延迟以确保渲染完成
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            
+            // 生成并下载zip文件
+            try {
+                const content = await zip.generateAsync({type: 'blob'});
+                const link = document.createElement('a');
+                link.download = `封面合集_${new Date().getTime()}.zip`;
+                link.href = URL.createObjectURL(content);
+                link.click();
+                URL.revokeObjectURL(link.href);
+            } catch (error) {
+                console.error('生成ZIP文件时出错:', error);
+            }
+        }
+    </script>
+</body>
+</html>
+</html>
