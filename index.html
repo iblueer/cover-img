@@ -110,6 +110,7 @@
             max-width: 100%;
             word-wrap: break-word;
             overflow-wrap: break-word;
+            color: #fff; /* 显式白色，避免继承在导出时丢失 */
         }
 
         .title-line {
@@ -125,12 +126,13 @@
 
         .title-line:nth-child(2) {
             font-size: 0.8em;
-            opacity: 0.9;
+            /* 使用半透明颜色替代 opacity，提升 html2canvas 兼容 */
+            color: rgba(255,255,255,0.9);
         }
 
         .title-line:nth-child(3) {
             font-size: 0.6em;
-            opacity: 0.7;
+            color: rgba(255,255,255,0.7);
             font-family: 'JetBrains Mono', monospace;
         }
 
@@ -518,10 +520,35 @@
         };
 
         // 初始化
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             setupEventListeners();
             updateAllDisplays();
+            // 预热字体，提升首次导出稳定性
+            await waitForFonts();
         });
+
+        // 预加载并等待字体加载完成，避免导出时文字缺失
+        async function waitForFonts() {
+            try {
+                const fontPromises = [];
+                // 针对页面使用到的字体和可能的字号/字重进行加载提示
+                fontPromises.push(document.fonts.load("400 14px Noto Sans SC"));
+                fontPromises.push(document.fonts.load("700 16px Noto Sans SC"));
+                fontPromises.push(document.fonts.load("900 32px Noto Sans SC"));
+                fontPromises.push(document.fonts.load("400 14px JetBrains Mono"));
+                fontPromises.push(document.fonts.load("700 18px JetBrains Mono"));
+                // Font Awesome 图标字体（fas 通常为 900 粗细）
+                fontPromises.push(document.fonts.load("900 20px 'Font Awesome 6 Free'"));
+                // 等待所有显式加载和 document.fonts.ready
+                await Promise.allSettled(fontPromises);
+                await document.fonts.ready;
+                // 最后一帧确保布局稳定
+                await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+            } catch (e) {
+                // 即使出错也不阻断导出，但会在控制台记录
+                console.warn('等待字体时发生问题:', e);
+            }
+        }
 
         function setupEventListeners() {
             // 文字输入监听
@@ -611,28 +638,44 @@
         async function downloadImage() {
             const zip = new JSZip();
             const containers = document.querySelectorAll('.cover-container');
-            
+
+            // 确保字体与布局就绪，避免文字丢失
+            await waitForFonts();
+
             for (let i = 0; i < containers.length; i++) {
                 const container = containers[i];
                 const ratio = container.dataset.ratio;
-                
+
                 try {
+                    // 再次确保本容器内的字体已渲染
+                    await waitForFonts();
+
                     const canvas = await html2canvas(container, {
                         backgroundColor: '#000000',
                         scale: 2,
                         useCORS: true,
                         allowTaint: true,
+                        letterRendering: true,
                         width: container.offsetWidth,
-                        height: container.offsetHeight
+                        height: container.offsetHeight,
+                        // 克隆时保持当前计算样式，尽量避免克隆阶段字体未命中
+                        onclone: (doc) => {
+                            try {
+                                const cloned = doc.querySelectorAll('.cover-container');
+                                cloned.forEach(el => {
+                                    el.style.fontFamily = getComputedStyle(container).fontFamily;
+                                });
+                            } catch (_) {}
+                        }
                     });
-                    
+
                     // 将canvas转换为blob
                     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
                     zip.file(`封面_${ratio.replace(':', '-')}.png`, blob);
                 } catch (error) {
                     console.error(`生成 ${ratio} 尺寸时出错:`, error);
                 }
-                
+
                 // 短暂延迟以确保渲染完成
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
