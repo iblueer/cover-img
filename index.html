@@ -203,8 +203,7 @@
             transform: translateY(-50%) rotate(90deg);
         }
 
-        .download-btn {
-            margin-top: 20px;
+        .btn {
             padding: 12px 24px;
             background: var(--accent-green);
             color: #000;
@@ -215,9 +214,13 @@
             transition: all 0.3s ease;
         }
 
-        .download-btn:hover {
+        .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,255,65,0.3);
+        }
+
+        .download-btn {
+            margin-top: 20px;
         }
 
         .input-panel {
@@ -255,6 +258,10 @@
             outline: none;
             border-color: var(--accent-green);
             box-shadow: 0 0 0 2px rgba(0,255,65,0.2);
+        }
+
+        #themeColor {
+            height: 100%;
         }
 
         .textarea-field {
@@ -498,13 +505,25 @@
                     <label class="input-label">分享封面文字（两行，空格分隔，4字以内）</label>
                     <input type="text" class="input-field" id="shareText" placeholder="请输入分享封面文字，用空格分隔两行，如：分享封面 两行四字" value="分享封面 两行四字" maxlength="10">
                 </div>
+
+                <div class="input-group">
+                    <label class="input-label">主题色</label>
+                    <div style="display:flex; align-items:center; gap:10px; height: 40px;">
+                        <select id="themeColorSelect" class="input-field" style="max-width: 160px;">
+                            <!-- 选项在脚本中按调色板填充 -->
+                        </select>
+                        <input type="color" id="themeColor" class="input-field" value="#00ff41" style="padding:0; width:60px;">
+                        <button type="button" id="randomColorBtn" class="btn" style="padding:8px 14px;">随机</button>
+                    </div>
+                </div>
             </div>
             
-            <button class="download-btn" onclick="downloadImage()">
+            <button class="btn download-btn" style="height: 60px;" onclick="downloadImage()">
                 <i class="fas fa-download mr-2"></i>下载所有尺寸
             </button>
-            <p class="text-sm text-gray-400 mt-4 text-right">创意来自@归藏</p>
+            <p class="text-sm text-gray-400 mt-4 text-right">Inspired by @归藏</p>
             <p class="text-sm text-gray-400 mt-4 text-right">Created By @张佳 & Cursor</p>
+            <p class="text-sm text-gray-400 mt-4 text-right">Modified By @Maemo_Lee & CodeX</p>
         </div>
     </div>
 
@@ -519,12 +538,32 @@
             ]
         };
 
+        // 下拉显示用的人性化颜色名称
+        const colorLabels = {
+            '#00ff41': '霓虹绿',
+            '#ff0080': '玫红',
+            '#00bfff': '天空蓝',
+            '#ff6b35': '活力橙',
+            '#9d4edd': '暗紫',
+            '#06ffa5': '薄荷绿',
+            '#ffbe0b': '琥珀黄',
+            '#fb5607': '橘红'
+        };
+
+        // 状态：选中主题色（默认第一个或本地存储）
+        const state = {
+            selectedColor: (localStorage.getItem('themeColor') || '#00ff41').toLowerCase()
+        };
+
         // 初始化
         document.addEventListener('DOMContentLoaded', async function() {
             setupEventListeners();
             updateAllDisplays();
             // 预热字体，提升首次导出稳定性
             await waitForFonts();
+            // 初始化主题色到变量与控件
+            setAccentColor(state.selectedColor);
+            initThemeControls();
         });
 
         // 预加载并等待字体加载完成，避免导出时文字缺失
@@ -554,6 +593,74 @@
             // 文字输入监听
             document.getElementById('mainTitle').addEventListener('input', updateAllDisplays);
             document.getElementById('shareText').addEventListener('input', updateAllDisplays);
+
+            // 主题色选择与随机
+            const colorInput = document.getElementById('themeColor');
+            const select = document.getElementById('themeColorSelect');
+            const randomBtn = document.getElementById('randomColorBtn');
+
+            if (colorInput) {
+                colorInput.addEventListener('input', (e) => {
+                    const val = String(e.target.value || '').toLowerCase();
+                    setAccentColor(val);
+                    if (select) {
+                        const palette = config.colors.map(c => c.toLowerCase());
+                        select.value = palette.includes(val) ? val : 'custom';
+                    }
+                });
+            }
+            if (select) {
+                select.addEventListener('change', (e) => {
+                    const val = String(e.target.value || '').toLowerCase();
+                    if (val === 'custom') {
+                        // 不改变当前颜色，等待颜色选择器操作
+                        if (colorInput && !colorInput.value) colorInput.value = state.selectedColor;
+                    } else {
+                        // 选择预设色则立即应用并同步选择器
+                        setAccentColor(val);
+                        if (colorInput) colorInput.value = val;
+                    }
+                });
+            }
+            if (randomBtn) {
+                randomBtn.addEventListener('click', () => {
+                    const pal = config.colors.map(c => c.toLowerCase());
+                    const next = pal[Math.floor(Math.random() * pal.length)];
+                    if (select) select.value = next;
+                    if (colorInput) colorInput.value = next;
+                    setAccentColor(next);
+                });
+            }
+        }
+
+        function initThemeControls() {
+            const select = document.getElementById('themeColorSelect');
+            const colorInput = document.getElementById('themeColor');
+            if (!select) return;
+
+            // 填充下拉列表：内置色板 + 自定义
+            select.innerHTML = '';
+            config.colors.forEach((hex) => {
+                const opt = document.createElement('option');
+                const value = hex.toLowerCase();
+                const label = colorLabels[value] || value;
+                opt.value = value;
+                opt.textContent = `${label} ${value}`;
+                select.appendChild(opt);
+            });
+            const customOpt = document.createElement('option');
+            customOpt.value = 'custom';
+            customOpt.textContent = '自定义…';
+            select.appendChild(customOpt);
+
+            // 根据当前状态选择合适的选项
+            const isPreset = config.colors.map(c => c.toLowerCase()).includes(state.selectedColor);
+            if (isPreset) {
+                select.value = state.selectedColor;
+            } else {
+                select.value = 'custom';
+            }
+            if (colorInput) colorInput.value = state.selectedColor;
         }
 
         function updateAllDisplays() {
@@ -609,16 +716,7 @@
 
         function applyDynamicStyling() {
             const titleText = document.getElementById('mainTitle').value;
-            const shareText = document.getElementById('shareText').value;
-            
-            // 基于文字内容选择颜色
-            const colorIndex = (titleText.length + shareText.length) % config.colors.length;
-            const accentColor = config.colors[colorIndex];
-            
-            // 更新CSS变量
-            document.documentElement.style.setProperty('--accent-green', accentColor);
-            
-            // 动态调整字体大小
+            // 仅动态调整字体大小，不改主题色，避免输入时颜色变化
             const titleLines = titleText.split('\n').filter(line => line.trim());
             const maxLineLength = Math.max(...titleLines.map(line => line.length));
             
@@ -633,6 +731,13 @@
             document.querySelectorAll('.title-main').forEach(titleMain => {
                 titleMain.style.fontSize = fontSize;
             });
+        }
+
+        // 更新主题色（仅在用户选择或点击随机时调用）
+        function setAccentColor(color) {
+            state.selectedColor = color;
+            document.documentElement.style.setProperty('--accent-green', color);
+            try { localStorage.setItem('themeColor', color); } catch (_) {}
         }
 
         async function downloadImage() {
