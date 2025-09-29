@@ -223,6 +223,13 @@
             margin-top: 20px;
         }
 
+        .single-download-btn {
+            margin-top: 12px;
+            align-self: flex-end;
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
         .input-panel {
             background: transparent;
             border: none;
@@ -402,6 +409,7 @@
                         <div class="text-row">两行四字</div>
                     </div>
                 </div>
+                <button type="button" class="btn single-download-btn" onclick="downloadSingle(this)">下载</button>
             </div>
 
             <!-- 16:9 横屏封面 -->
@@ -423,6 +431,7 @@
                         <i class="fas fa-arrow-down arrow-indicator arrow-1"></i>
                     </div>
                 </div>
+                <button type="button" class="btn single-download-btn" onclick="downloadSingle(this)">下载</button>
             </div>
 
             <!-- 9:16 竖屏封面 -->
@@ -444,6 +453,7 @@
                         <i class="fas fa-arrow-down arrow-indicator arrow-1"></i>
                     </div>
                 </div>
+                <button type="button" class="btn single-download-btn" onclick="downloadSingle(this)">下载</button>
             </div>
 
             <!-- 3:4 竖屏封面 -->
@@ -465,6 +475,7 @@
                         <i class="fas fa-arrow-down arrow-indicator arrow-1"></i>
                     </div>
                 </div>
+                <button type="button" class="btn single-download-btn" onclick="downloadSingle(this)">下载</button>
             </div>
 
             <!-- 4:3 横屏封面 -->
@@ -486,6 +497,7 @@
                         <i class="fas fa-arrow-down arrow-indicator arrow-1"></i>
                     </div>
                 </div>
+                <button type="button" class="btn single-download-btn" onclick="downloadSingle(this)">下载</button>
             </div>
             </div>
         </div>
@@ -795,6 +807,56 @@
                 URL.revokeObjectURL(link.href);
             } catch (error) {
                 console.error('生成ZIP文件时出错:', error);
+            }
+        }
+
+        async function downloadSingle(button) {
+            const coverItem = button.closest('.cover-item');
+            if (!coverItem) return;
+            const container = coverItem.querySelector('.cover-container');
+            if (!container) return;
+
+            const ratio = container.dataset.ratio || 'single';
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = '处理中…';
+
+            try {
+                await waitForFonts();
+
+                const canvas = await html2canvas(container, {
+                    backgroundColor: '#000000',
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    letterRendering: true,
+                    width: container.offsetWidth,
+                    height: container.offsetHeight,
+                    onclone: (doc) => {
+                        try {
+                            const cloned = doc.querySelectorAll('.cover-container');
+                            cloned.forEach(el => {
+                                el.style.fontFamily = getComputedStyle(container).fontFamily;
+                            });
+                        } catch (error) {
+                            console.warn('clone font sync failed', error);
+                        }
+                    }
+                });
+
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                if (!blob) throw new Error('生成 PNG 失败');
+
+                const link = document.createElement('a');
+                link.download = `封面_${ratio.replace(':', '-')}.png`;
+                link.href = URL.createObjectURL(blob);
+                link.click();
+                URL.revokeObjectURL(link.href);
+            } catch (error) {
+                console.error('导出单个封面失败:', error);
+            } finally {
+                button.disabled = false;
+                button.textContent = originalText;
             }
         }
     </script>
