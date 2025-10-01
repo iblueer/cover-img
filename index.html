@@ -192,9 +192,13 @@
 
         .arrow-indicator {
             position: absolute;
-            color: var(--accent-green);
             opacity: 0.5;
-            font-size: 20px;
+            /* 使用CSS绘制箭头，替代Font Awesome图标 */
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 15px solid var(--accent-green);
         }
 
         .arrow-1 {
@@ -401,7 +405,7 @@
                             <span class="title-line">全尺寸一键搞定！</span>
                             <span class="title-line">高级·高效·高颜</span>
                         </div>
-                        <i class="fas fa-arrow-down arrow-indicator arrow-1"></i>
+                        <div class="arrow-indicator arrow-1"></div>
                     </div>
                     <div class="share-cover" data-target="share-text">
                         <div class="grid-overlay"></div>
@@ -428,7 +432,7 @@
                             <span class="title-line">全尺寸一键搞定！</span>
                             <span class="title-line">高级·高效·高颜</span>
                         </div>
-                        <i class="fas fa-arrow-down arrow-indicator arrow-1"></i>
+                        <div class="arrow-indicator arrow-1"></div>
                     </div>
                 </div>
                 <button type="button" class="btn single-download-btn" onclick="downloadSingle(this)">下载</button>
@@ -450,7 +454,7 @@
                             <span class="title-line">全尺寸一键搞定！</span>
                             <span class="title-line">高级·高效·高颜</span>
                         </div>
-                        <i class="fas fa-arrow-down arrow-indicator arrow-1"></i>
+                        <div class="arrow-indicator arrow-1"></div>
                     </div>
                 </div>
                 <button type="button" class="btn single-download-btn" onclick="downloadSingle(this)">下载</button>
@@ -472,7 +476,7 @@
                             <span class="title-line">全尺寸一键搞定！</span>
                             <span class="title-line">高级·高效·高颜</span>
                         </div>
-                        <i class="fas fa-arrow-down arrow-indicator arrow-1"></i>
+                        <div class="arrow-indicator arrow-1"></div>
                     </div>
                 </div>
                 <button type="button" class="btn single-download-btn" onclick="downloadSingle(this)">下载</button>
@@ -494,7 +498,7 @@
                             <span class="title-line">全尺寸一键搞定！</span>
                             <span class="title-line">高级·高效·高颜</span>
                         </div>
-                        <i class="fas fa-arrow-down arrow-indicator arrow-1"></i>
+                        <div class="arrow-indicator arrow-1"></div>
                     </div>
                 </div>
                 <button type="button" class="btn single-download-btn" onclick="downloadSingle(this)">下载</button>
@@ -539,7 +543,7 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
         // 配置对象
@@ -767,27 +771,17 @@
                     // 再次确保本容器内的字体已渲染
                     await waitForFonts();
 
-                    const canvas = await html2canvas(container, {
+                    // 使用html-to-image替代html2canvas
+                    const blob = await htmlToImage.toBlob(container, {
                         backgroundColor: '#000000',
-                        scale: 2,
-                        useCORS: true,
-                        allowTaint: true,
-                        letterRendering: true,
-                        width: container.offsetWidth,
-                        height: container.offsetHeight,
-                        // 克隆时保持当前计算样式，尽量避免克隆阶段字体未命中
-                        onclone: (doc) => {
-                            try {
-                                const cloned = doc.querySelectorAll('.cover-container');
-                                cloned.forEach(el => {
-                                    el.style.fontFamily = getComputedStyle(container).fontFamily;
-                                });
-                            } catch (_) {}
+                        pixelRatio: 2,
+                        cacheBust: true,
+                        style: {
+                            margin: '0',
+                            padding: '0'
                         }
                     });
 
-                    // 将canvas转换为blob
-                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
                     zip.file(`封面_${ratio.replace(':', '-')}.png`, blob);
                 } catch (error) {
                     console.error(`生成 ${ratio} 尺寸时出错:`, error);
@@ -824,27 +818,17 @@
             try {
                 await waitForFonts();
 
-                const canvas = await html2canvas(container, {
+                // 使用html-to-image替代html2canvas
+                const blob = await htmlToImage.toBlob(container, {
                     backgroundColor: '#000000',
-                    scale: 2,
-                    useCORS: true,
-                    allowTaint: true,
-                    letterRendering: true,
-                    width: container.offsetWidth,
-                    height: container.offsetHeight,
-                    onclone: (doc) => {
-                        try {
-                            const cloned = doc.querySelectorAll('.cover-container');
-                            cloned.forEach(el => {
-                                el.style.fontFamily = getComputedStyle(container).fontFamily;
-                            });
-                        } catch (error) {
-                            console.warn('clone font sync failed', error);
-                        }
+                    pixelRatio: 2,
+                    cacheBust: true,
+                    style: {
+                        margin: '0',
+                        padding: '0'
                     }
                 });
 
-                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
                 if (!blob) throw new Error('生成 PNG 失败');
 
                 const link = document.createElement('a');
