@@ -10,13 +10,59 @@
     <link rel="icon" href="favicon.png" type="image/png">
     <style>
         :root {
-            --accent-green: #00ff41;
+            --highlight-color: #00ff41;
+            --body-bg: #000;
+            --body-text: #fff;
+            --sidebar-bg: #111;
+            --sidebar-border: #333;
+            --surface-bg: #000;
+            --surface-border: #333;
+            --surface-divider: #333;
+            --input-bg: #222;
+            --input-border: #444;
+            --input-text: #fff;
+            --grid-line-color: rgba(255,255,255,0.03);
+            --title-primary-color: #fff;
+            --title-secondary-color: rgba(255,255,255,0.9);
+            --title-tertiary-color: rgba(255,255,255,0.7);
+            --share-text-color: #fff;
+            --button-text-color: #000;
+            --highlight-text-color: #000;
+            --export-background: #000;
+            --corner-frame-color: rgba(255,255,255,0.3);
+        }
+
+        body[data-theme="apple-light"] {
+            --body-bg: #ffffff;
+            --body-text: #313131;
+            --sidebar-bg: #f3f4f6;
+            --sidebar-border: #d1d5db;
+            --surface-bg: #ffffff;
+            --surface-border: #e5e7eb;
+            --surface-divider: #e5e7eb;
+            --input-bg: #ffffff;
+            --input-border: #d1d5db;
+            --input-text: #1f2933;
+            --grid-line-color: rgba(0,0,0,0.08);
+            --title-primary-color: #1a1a1a;
+            --title-secondary-color: rgba(0,0,0,0.75);
+            --title-tertiary-color: rgba(0,0,0,0.6);
+            --share-text-color: #111827;
+            --button-text-color: #000000;
+            --highlight-text-color: #000000;
+            --export-background: #ffffff;
+            --corner-frame-color: rgba(0,0,0,0.15);
+        }
+
+        body[data-theme="geek-dark"] {
+            --body-bg: #000000;
+            --body-text: #f4f4f4;
         }
 
         body {
             font-family: 'Noto Sans SC', sans-serif;
-            background: #000;
-            color: #fff;
+            background: var(--body-bg);
+            color: var(--body-text);
             margin: 0;
             padding: 0;
             min-height: 100vh;
@@ -41,8 +87,8 @@
         
         .sidebar {
             width: 350px;
-            background: #111;
-            border-left: 1px solid #333;
+            background: var(--sidebar-bg);
+            border-left: 1px solid var(--sidebar-border);
             padding: 20px;
             box-sizing: border-box;
             position: fixed;
@@ -58,8 +104,8 @@
             aspect-ratio: 3.35/1;
             display: flex;
             position: relative;
-            background: #000;
-            border: 1px solid #333;
+            background: var(--surface-bg);
+            border: 1px solid var(--surface-border);
             overflow: hidden;
         }
 
@@ -67,7 +113,7 @@
             width: 70.15%;
             aspect-ratio: 2.35/1;
             position: relative;
-            border-right: 1px solid #333;
+            border-right: 1px solid var(--surface-divider);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -94,9 +140,10 @@
             letter-spacing: 0.1em;
             font-weight: 900;
             text-align: center;
-            color: #fff;
+            color: var(--share-text-color);
             margin: 4px 0;
             width: 100%;
+            white-space: pre-wrap;
         }
 
         .title-main {
@@ -110,30 +157,60 @@
             max-width: 100%;
             word-wrap: break-word;
             overflow-wrap: break-word;
-            color: #fff; /* 显式白色，避免继承在导出时丢失 */
+            color: var(--title-primary-color);
+        }
+
+        .title-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .title-illustration {
+            width: 100%;
+            flex: 0 0 auto;
+            display: none;
+            overflow: hidden;
+        }
+
+        .title-illustration img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .title-illustration.has-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .title-line {
             display: block;
             position: relative;
             margin-bottom: 8px;
+            color: var(--title-primary-color);
+            white-space: pre-wrap;
         }
 
         .title-line:nth-child(1) {
             font-size: 1.2em;
-            color: var(--accent-green);
         }
 
         .title-line:nth-child(2) {
             font-size: 0.8em;
             /* 使用半透明颜色替代 opacity，提升 html2canvas 兼容 */
-            color: rgba(255,255,255,0.9);
+            color: var(--title-secondary-color);
         }
 
         .title-line:nth-child(3) {
             font-size: 0.6em;
-            color: rgba(255,255,255,0.7);
-            font-family: 'JetBrains Mono', monospace;
+            color: var(--title-tertiary-color);
+            /* font-family: 'JetBrains Mono', monospace; */
         }
 
         .grid-overlay {
@@ -143,15 +220,15 @@
             right: 0;
             bottom: 0;
             background-image: 
-                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+                linear-gradient(var(--grid-line-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line-color) 1px, transparent 1px);
             background-size: 20px 20px;
             pointer-events: none;
         }
 
         .accent-line {
             position: absolute;
-            background: var(--accent-green);
+            background: var(--highlight-color);
         }
 
         .accent-line-1 {
@@ -169,11 +246,61 @@
             right: 30px;
         }
 
+        .highlight {
+            background: var(--highlight-color);
+            color: var(--highlight-text-color);
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+        }
+
+        .highlight-inline {
+            color: var(--highlight-color);
+            font-weight: inherit;
+        }
+
+        body[data-theme="apple-light"] .title-line {
+            font-size: 0.8em;
+            color: var(--title-primary-color);
+            font-family: 'Noto Sans SC', sans-serif;
+            line-height: 2;
+            margin-bottom: 0;
+        }
+
+        body[data-theme="apple-light"] .title-line:nth-child(2),
+        body[data-theme="apple-light"] .title-line:nth-child(3),
+        body[data-theme="apple-light"] .title-line:nth-child(4) {
+            color: var(--title-primary-color);
+        }
+
+        body[data-theme="apple-light"] .grid-overlay,
+        body[data-theme="apple-light"] .corner-frame,
+        body[data-theme="apple-light"] .accent-line,
+        body[data-theme="apple-light"] .arrow-indicator {
+            display: none;
+        }
+
+        body[data-theme="apple-light"] .main-cover,
+        body[data-theme="apple-light"] .single-main-cover {
+            justify-content: flex-start;
+            align-items: stretch;
+            padding: 48px 0;
+        }
+
+        body[data-theme="apple-light"] .title-wrapper {
+            flex: 1 1 auto;
+            margin: 0 48px;
+            gap: 32px;
+        }
+
+        body[data-theme="apple-light"] .title-illustration {
+            flex: 1 1 0%;
+        }
+
         .corner-frame {
             position: absolute;
             width: 20px;
             height: 20px;
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid var(--corner-frame-color);
         }
 
         .corner-frame-1 {
@@ -198,7 +325,7 @@
             height: 0;
             border-left: 10px solid transparent;
             border-right: 10px solid transparent;
-            border-top: 15px solid var(--accent-green);
+            border-top: 15px solid var(--highlight-color);
         }
 
         .arrow-1 {
@@ -209,8 +336,8 @@
 
         .btn {
             padding: 12px 24px;
-            background: var(--accent-green);
-            color: #000;
+            background: var(--highlight-color);
+            color: var(--button-text-color);
             border: none;
             font-weight: 700;
             cursor: pointer;
@@ -220,7 +347,16 @@
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,255,65,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px color-mix(in srgb, var(--highlight-color) 30%, transparent);
+        }
+
+        .btn:disabled,
+        .btn:disabled:hover {
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+            box-shadow: none;
         }
 
         .download-btn {
@@ -248,7 +384,7 @@
 
         .input-label {
             display: block;
-            color: #fff;
+            color: var(--body-text);
             font-size: 14px;
             font-weight: 600;
             margin-bottom: 5px;
@@ -256,19 +392,47 @@
 
         .input-field {
             width: 100%;
-            background: #222;
-            border: 1px solid #444;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
             border-radius: 4px;
             padding: 10px;
-            color: #fff;
+            color: var(--input-text);
             font-size: 14px;
             font-family: 'Noto Sans SC', sans-serif;
         }
 
         .input-field:focus {
             outline: none;
-            border-color: var(--accent-green);
-            box-shadow: 0 0 0 2px rgba(0,255,65,0.2);
+            border-color: var(--highlight-color);
+            box-shadow: 0 0 0 2px var(--highlight-color);
+            box-shadow: 0 0 0 2px color-mix(in srgb, var(--highlight-color) 40%, transparent);
+        }
+
+        .illustration-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px dashed var(--input-border);
+            border-radius: 4px;
+            padding: 8px;
+            color: var(--input-text);
+            font-size: 13px;
+        }
+
+        .file-input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .input-help {
+            margin-top: 4px;
+            font-size: 12px;
+            color: color-mix(in srgb, var(--body-text) 60%, transparent);
         }
 
         #themeColor {
@@ -293,7 +457,7 @@
         }
 
         .cover-title {
-            color: #fff;
+            color: var(--body-text);
             font-size: 16px;
             font-weight: 600;
             margin-bottom: 10px;
@@ -383,7 +547,7 @@
         }
     </style>
 </head>
-<body>
+<body data-theme="geek-dark">
     <div class="main-layout">
         <!-- 主内容区域 -->
         <div class="content-area">
@@ -399,11 +563,14 @@
                         <div class="corner-frame corner-frame-2"></div>
                         <div class="accent-line accent-line-1"></div>
                         <div class="accent-line accent-line-2"></div>
-                        <div class="title-main" data-target="main-title">
-                            <span class="title-line">高级感！</span>
-                            <span class="title-line">用AI写网页做封面图片</span>
-                            <span class="title-line">全尺寸一键搞定！</span>
-                            <span class="title-line">高级·高效·高颜</span>
+                        <div class="title-wrapper">
+                            <div class="title-main" data-target="main-title">
+                                <span class="title-line">超级超强超绝坚固的铝金属。</span>
+                                <span class="title-line"> 有 Mac 都好办。</span>
+                            </div>
+                            <div class="title-illustration" data-target="cover-image" aria-hidden="true">
+                                <img alt="封面插图" loading="lazy">
+                            </div>
                         </div>
                         <div class="arrow-indicator arrow-1"></div>
                     </div>
@@ -426,11 +593,14 @@
                         <div class="corner-frame corner-frame-2"></div>
                         <div class="accent-line accent-line-1"></div>
                         <div class="accent-line accent-line-2"></div>
-                        <div class="title-main" data-target="main-title">
-                            <span class="title-line">高级感！</span>
-                            <span class="title-line">用AI写网页做封面图片</span>
-                            <span class="title-line">全尺寸一键搞定！</span>
-                            <span class="title-line">高级·高效·高颜</span>
+                        <div class="title-wrapper">
+                            <div class="title-main" data-target="main-title">
+                                <span class="title-line">超级超强超绝坚固的铝金属。</span>
+                                <span class="title-line"> 有 Mac 都好办。</span>
+                            </div>
+                            <div class="title-illustration" data-target="cover-image" aria-hidden="true">
+                                <img alt="封面插图" loading="lazy">
+                            </div>
                         </div>
                         <div class="arrow-indicator arrow-1"></div>
                     </div>
@@ -448,11 +618,14 @@
                         <div class="corner-frame corner-frame-2"></div>
                         <div class="accent-line accent-line-1"></div>
                         <div class="accent-line accent-line-2"></div>
-                        <div class="title-main" data-target="main-title">
-                            <span class="title-line">高级感！</span>
-                            <span class="title-line">用AI写网页做封面图片</span>
-                            <span class="title-line">全尺寸一键搞定！</span>
-                            <span class="title-line">高级·高效·高颜</span>
+                        <div class="title-wrapper">
+                            <div class="title-main" data-target="main-title">
+                                <span class="title-line">超级超强超绝坚固的铝金属。</span>
+                                <span class="title-line"> 有 Mac 都好办。</span>
+                            </div>
+                            <div class="title-illustration" data-target="cover-image" aria-hidden="true">
+                                <img alt="封面插图" loading="lazy">
+                            </div>
                         </div>
                         <div class="arrow-indicator arrow-1"></div>
                     </div>
@@ -470,11 +643,14 @@
                         <div class="corner-frame corner-frame-2"></div>
                         <div class="accent-line accent-line-1"></div>
                         <div class="accent-line accent-line-2"></div>
-                        <div class="title-main" data-target="main-title">
-                            <span class="title-line">高级感！</span>
-                            <span class="title-line">用AI写网页做封面图片</span>
-                            <span class="title-line">全尺寸一键搞定！</span>
-                            <span class="title-line">高级·高效·高颜</span>
+                        <div class="title-wrapper">
+                            <div class="title-main" data-target="main-title">
+                                <span class="title-line">超级超强超绝坚固的铝金属。</span>
+                                <span class="title-line"> 有 Mac 都好办。</span>
+                            </div>
+                            <div class="title-illustration" data-target="cover-image" aria-hidden="true">
+                                <img alt="封面插图" loading="lazy">
+                            </div>
                         </div>
                         <div class="arrow-indicator arrow-1"></div>
                     </div>
@@ -492,11 +668,14 @@
                         <div class="corner-frame corner-frame-2"></div>
                         <div class="accent-line accent-line-1"></div>
                         <div class="accent-line accent-line-2"></div>
-                        <div class="title-main" data-target="main-title">
-                            <span class="title-line">高级感！</span>
-                            <span class="title-line">用AI写网页做封面图片</span>
-                            <span class="title-line">全尺寸一键搞定！</span>
-                            <span class="title-line">高级·高效·高颜</span>
+                        <div class="title-wrapper">
+                            <div class="title-main" data-target="main-title">
+                                <span class="title-line">超级超强超绝坚固的铝金属。</span>
+                                <span class="title-line"> 有 Mac 都好办。</span>
+                            </div>
+                            <div class="title-illustration" data-target="cover-image" aria-hidden="true">
+                                <img alt="封面插图" loading="lazy">
+                            </div>
                         </div>
                         <div class="arrow-indicator arrow-1"></div>
                     </div>
@@ -512,10 +691,8 @@
             <div class="input-panel">
                 <div class="input-group">
                     <label class="input-label">主封面标题（每行一个）</label>
-                    <textarea class="input-field textarea-field" id="mainTitle" placeholder="请输入主封面标题，每行一个内容，最多4行">高级感！
-用AI写网页做封面图片
-全尺寸一键搞定！
-高级·高效·高颜</textarea>
+                    <textarea class="input-field textarea-field" id="mainTitle" placeholder="请输入主封面标题，每行一个内容，最多4行">超级超强超绝**坚固的铝金属。**
+ 有 Mac **都好办。**</textarea>
                 </div>
                 <div class="input-group">
                     <label class="input-label">分享封面文字（两行，空格分隔，4字以内）</label>
@@ -523,7 +700,15 @@
                 </div>
 
                 <div class="input-group">
-                    <label class="input-label">主题色</label>
+                    <label class="input-label">主题</label>
+                    <select id="themeSelect" class="input-field">
+                        <option value="geek-dark">极客暗色</option>
+                        <option value="apple-light">苹果亮色</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">高亮色</label>
                     <div style="display:flex; align-items:center; gap:10px; height: 40px;">
                         <select id="themeColorSelect" class="input-field" style="max-width: 160px;">
                             <!-- 选项在脚本中按调色板填充 -->
@@ -531,6 +716,15 @@
                         <input type="color" id="themeColor" class="input-field" value="#00ff41" style="padding:0; width:60px;">
                         <button type="button" id="randomColorBtn" class="btn" style="padding:8px 14px;">随机</button>
                     </div>
+                </div>
+
+                <div class="input-group" id="illustrationControls">
+                    <label class="input-label">插图（仅苹果亮色）</label>
+                    <div class="illustration-control">
+                        <input type="file" id="illustrationInput" class="file-input" accept="image/*">
+                        <button type="button" id="clearIllustrationBtn" class="btn" style="padding:8px 14px;">清除</button>
+                    </div>
+                    <p class="input-help">支持 PNG、JPG、SVG，自动缩放以完整显示。</p>
                 </div>
             </div>
             
@@ -547,14 +741,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
         // 配置对象
-        const config = {
+        const DEFAULT_HIGHLIGHT = '#00ff41';
+
+        const colorConfig = {
             colors: [
-                '#00ff41', '#ff0080', '#00bfff', '#ff6b35', 
+                '#00ff41', '#ff0080', '#00bfff', '#ff6b35',
                 '#9d4edd', '#06ffa5', '#ffbe0b', '#fb5607'
             ]
         };
 
-        // 下拉显示用的人性化颜色名称
         const colorLabels = {
             '#00ff41': '霓虹绿',
             '#ff0080': '玫红',
@@ -566,20 +761,68 @@
             '#fb5607': '橘红'
         };
 
-        // 状态：选中主题色（默认第一个或本地存储）
+        const themes = {
+            'geek-dark': {
+                key: 'geek-dark',
+                label: '极客暗色',
+                maxTitleLines: 4,
+                allowIllustration: false
+            },
+            'apple-light': {
+                key: 'apple-light',
+                label: '苹果亮色',
+                maxTitleLines: 2,
+                allowIllustration: true
+            }
+        };
+
+        const storageKeys = {
+            highlight: 'themeColor',
+            theme: 'themeStyle',
+            illustration: 'appleLightIllustration'
+        };
+
+        const resolveThemeKey = (theme) => {
+            const key = (theme || '').toLowerCase();
+            return themes[key] ? key : 'geek-dark';
+        };
+
+        const getStoredValue = (key) => {
+            try {
+                return localStorage.getItem(key);
+            } catch (_) {
+                return null;
+            }
+        };
+
+        const setStoredValue = (key, value) => {
+            try {
+                if (value) {
+                    localStorage.setItem(key, value);
+                } else {
+                    localStorage.removeItem(key);
+                }
+            } catch (_) {}
+        };
+
+        const initialThemeKey = resolveThemeKey(getStoredValue(storageKeys.theme));
+
         const state = {
-            selectedColor: (localStorage.getItem('themeColor') || '#00ff41').toLowerCase()
+            selectedColor: (getStoredValue(storageKeys.highlight) || DEFAULT_HIGHLIGHT).toLowerCase(),
+            selectedTheme: initialThemeKey,
+            illustrationData: getStoredValue(storageKeys.illustration) || ''
         };
 
         // 初始化
         document.addEventListener('DOMContentLoaded', async function() {
+            initThemeControls();
+            applyTheme(state.selectedTheme);
+            setHighlightColor(state.selectedColor);
             setupEventListeners();
+            updateIllustrationControls();
             updateAllDisplays();
             // 预热字体，提升首次导出稳定性
             await waitForFonts();
-            // 初始化主题色到变量与控件
-            setAccentColor(state.selectedColor);
-            initThemeControls();
         });
 
         // 预加载并等待字体加载完成，避免导出时文字缺失
@@ -606,96 +849,316 @@
         }
 
         function setupEventListeners() {
-            // 文字输入监听
-            document.getElementById('mainTitle').addEventListener('input', updateAllDisplays);
-            document.getElementById('shareText').addEventListener('input', updateAllDisplays);
+            const mainTitleInput = document.getElementById('mainTitle');
+            const shareTextInput = document.getElementById('shareText');
+            if (mainTitleInput) mainTitleInput.addEventListener('input', updateAllDisplays);
+            if (shareTextInput) shareTextInput.addEventListener('input', updateAllDisplays);
 
-            // 主题色选择与随机
+            const themeSelectControl = document.getElementById('themeSelect');
+            if (themeSelectControl) {
+                themeSelectControl.addEventListener('change', (e) => {
+                    const val = String(e.target.value || '').toLowerCase();
+                    applyTheme(val);
+                    updateAllDisplays();
+                });
+            }
+
             const colorInput = document.getElementById('themeColor');
-            const select = document.getElementById('themeColorSelect');
+            const paletteSelect = document.getElementById('themeColorSelect');
             const randomBtn = document.getElementById('randomColorBtn');
 
             if (colorInput) {
                 colorInput.addEventListener('input', (e) => {
                     const val = String(e.target.value || '').toLowerCase();
-                    setAccentColor(val);
-                    if (select) {
-                        const palette = config.colors.map(c => c.toLowerCase());
-                        select.value = palette.includes(val) ? val : 'custom';
+                    setHighlightColor(val);
+                    if (paletteSelect) {
+                        const palette = colorConfig.colors.map(c => c.toLowerCase());
+                        paletteSelect.value = palette.includes(val) ? val : 'custom';
                     }
                 });
             }
-            if (select) {
-                select.addEventListener('change', (e) => {
+
+            if (paletteSelect) {
+                paletteSelect.addEventListener('change', (e) => {
                     const val = String(e.target.value || '').toLowerCase();
                     if (val === 'custom') {
-                        // 不改变当前颜色，等待颜色选择器操作
                         if (colorInput && !colorInput.value) colorInput.value = state.selectedColor;
                     } else {
-                        // 选择预设色则立即应用并同步选择器
-                        setAccentColor(val);
+                        setHighlightColor(val);
                         if (colorInput) colorInput.value = val;
                     }
                 });
             }
+
             if (randomBtn) {
                 randomBtn.addEventListener('click', () => {
-                    const pal = config.colors.map(c => c.toLowerCase());
-                    const next = pal[Math.floor(Math.random() * pal.length)];
-                    if (select) select.value = next;
+                    const palette = colorConfig.colors.map(c => c.toLowerCase());
+                    const next = palette[Math.floor(Math.random() * palette.length)];
+                    if (paletteSelect) paletteSelect.value = next;
                     if (colorInput) colorInput.value = next;
-                    setAccentColor(next);
+                    setHighlightColor(next);
                 });
+            }
+
+            const illustrationInput = document.getElementById('illustrationInput');
+            const clearIllustrationBtn = document.getElementById('clearIllustrationBtn');
+
+            if (illustrationInput) {
+                illustrationInput.addEventListener('change', handleIllustrationChange);
+            }
+
+            if (clearIllustrationBtn) {
+                clearIllustrationBtn.addEventListener('click', clearIllustration);
             }
         }
 
+        function stripBoldSyntax(text) {
+            const source = typeof text === 'string' ? text : String(text || '');
+            const withoutBlock = source.replace(/\*\*(.*?)\*\*/g, '$1');
+            return withoutBlock.replace(/\*(.*?)\*/g, '$1');
+        }
+
+        function renderTextWithMarkdown(container, text, options = {}) {
+            const source = typeof text === 'string' ? text : String(text || '');
+            const fragment = document.createDocumentFragment();
+            const maxChars = typeof options.maxChars === 'number' ? options.maxChars : null;
+            let consumed = 0;
+            let done = false;
+
+            const appendSegment = (segment, type) => {
+                if (!segment || done) return;
+                let textSegment = segment;
+                if (maxChars !== null) {
+                    const remaining = maxChars - consumed;
+                    if (remaining <= 0) {
+                        done = true;
+                        return;
+                    }
+                    textSegment = segment.slice(0, remaining);
+                }
+
+                if (!textSegment) {
+                    return;
+                }
+
+                if (type === 'highlight-bg') {
+                    const span = document.createElement('span');
+                    span.className = 'highlight';
+                    span.textContent = textSegment;
+                    fragment.appendChild(span);
+                } else if (type === 'highlight-text') {
+                    const span = document.createElement('span');
+                    span.className = 'highlight-inline';
+                    span.textContent = textSegment;
+                    fragment.appendChild(span);
+                } else {
+                    fragment.appendChild(document.createTextNode(textSegment));
+                }
+
+                consumed += textSegment.length;
+                if (maxChars !== null && consumed >= maxChars) {
+                    done = true;
+                }
+            };
+
+            const flushBuffer = (buffer) => {
+                if (buffer) {
+                    appendSegment(buffer, 'text');
+                }
+                return '';
+            };
+
+            let buffer = '';
+            let i = 0;
+            while (i < source.length && !done) {
+                if (source.startsWith('**', i)) {
+                    const end = source.indexOf('**', i + 2);
+                    if (end !== -1) {
+                        buffer = flushBuffer(buffer);
+                        const content = source.slice(i + 2, end);
+                        appendSegment(content, 'highlight-bg');
+                        i = end + 2;
+                        continue;
+                    }
+                }
+                if (source[i] === '*') {
+                    const end = source.indexOf('*', i + 1);
+                    if (end !== -1) {
+                        buffer = flushBuffer(buffer);
+                        const content = source.slice(i + 1, end);
+                        appendSegment(content, 'highlight-text');
+                        i = end + 1;
+                        continue;
+                    }
+                }
+
+                buffer += source[i];
+                i += 1;
+            }
+
+            if (!done) {
+                flushBuffer(buffer);
+            }
+
+            container.appendChild(fragment);
+        }
+
+        function getThemeConfig(theme) {
+            const key = resolveThemeKey(theme);
+            return themes[key];
+        }
+
+        function applyTheme(theme) {
+            const config = getThemeConfig(theme);
+            state.selectedTheme = config.key;
+            document.body.dataset.theme = state.selectedTheme;
+            setStoredValue(storageKeys.theme, state.selectedTheme);
+            const themeSelect = document.getElementById('themeSelect');
+            if (themeSelect && themeSelect.value !== state.selectedTheme) {
+                themeSelect.value = state.selectedTheme;
+            }
+            updateIllustrationControls();
+            updateIllustrations();
+        }
+
+        function updateIllustrationControls() {
+            const controls = document.getElementById('illustrationControls');
+            const fileInput = document.getElementById('illustrationInput');
+            const clearButton = document.getElementById('clearIllustrationBtn');
+            const { allowIllustration } = getThemeConfig(state.selectedTheme);
+
+            if (controls) {
+                controls.style.display = allowIllustration ? 'block' : 'none';
+            }
+            if (fileInput) {
+                fileInput.disabled = !allowIllustration;
+                if (!allowIllustration) {
+                    fileInput.value = '';
+                }
+            }
+            if (clearButton) {
+                const disabled = !allowIllustration || !state.illustrationData;
+                clearButton.disabled = disabled;
+                clearButton.style.opacity = disabled ? '0.6' : '';
+            }
+        }
+
+        function updateIllustrations() {
+            const { allowIllustration } = getThemeConfig(state.selectedTheme);
+            document.querySelectorAll('[data-target="cover-image"]').forEach(container => {
+                const img = container.querySelector('img');
+                if (!img) return;
+                if (allowIllustration && state.illustrationData) {
+                    img.src = state.illustrationData;
+                    container.classList.add('has-image');
+                    container.setAttribute('aria-hidden', 'false');
+                } else {
+                    img.removeAttribute('src');
+                    container.classList.remove('has-image');
+                    container.setAttribute('aria-hidden', 'true');
+                }
+            });
+        }
+
+        function handleIllustrationChange(event) {
+            const file = event?.target?.files?.[0];
+            if (!file) {
+                return;
+            }
+            if (!file.type.startsWith('image/')) {
+                console.warn('请选择图片文件');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = () => {
+                state.illustrationData = reader.result || '';
+                setStoredValue(storageKeys.illustration, state.illustrationData);
+                updateIllustrations();
+                updateIllustrationControls();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearIllustration() {
+            state.illustrationData = '';
+            setStoredValue(storageKeys.illustration, '');
+            const fileInput = document.getElementById('illustrationInput');
+            if (fileInput) {
+                fileInput.value = '';
+            }
+            updateIllustrations();
+            updateIllustrationControls();
+        }
+
+        function getExportBackground() {
+            const value = getComputedStyle(document.body).getPropertyValue('--export-background').trim();
+            return value || '#000000';
+        }
+
         function initThemeControls() {
+            const themeSelect = document.getElementById('themeSelect');
+            if (themeSelect) {
+                themeSelect.innerHTML = '';
+                Object.values(themes).forEach(({ key, label }) => {
+                    const opt = document.createElement('option');
+                    opt.value = key;
+                    opt.textContent = label;
+                    themeSelect.appendChild(opt);
+                });
+                themeSelect.value = state.selectedTheme;
+            }
+
             const select = document.getElementById('themeColorSelect');
             const colorInput = document.getElementById('themeColor');
-            if (!select) return;
+            if (select) {
+                select.innerHTML = '';
+                colorConfig.colors.forEach((hex) => {
+                    const opt = document.createElement('option');
+                    const value = hex.toLowerCase();
+                    const label = colorLabels[value] || value;
+                    opt.value = value;
+                    opt.textContent = `${label} ${value}`;
+                    select.appendChild(opt);
+                });
+                const customOpt = document.createElement('option');
+                customOpt.value = 'custom';
+                customOpt.textContent = '自定义…';
+                select.appendChild(customOpt);
 
-            // 填充下拉列表：内置色板 + 自定义
-            select.innerHTML = '';
-            config.colors.forEach((hex) => {
-                const opt = document.createElement('option');
-                const value = hex.toLowerCase();
-                const label = colorLabels[value] || value;
-                opt.value = value;
-                opt.textContent = `${label} ${value}`;
-                select.appendChild(opt);
-            });
-            const customOpt = document.createElement('option');
-            customOpt.value = 'custom';
-            customOpt.textContent = '自定义…';
-            select.appendChild(customOpt);
-
-            // 根据当前状态选择合适的选项
-            const isPreset = config.colors.map(c => c.toLowerCase()).includes(state.selectedColor);
-            if (isPreset) {
-                select.value = state.selectedColor;
-            } else {
-                select.value = 'custom';
+                const palette = colorConfig.colors.map(c => c.toLowerCase());
+                select.value = palette.includes(state.selectedColor) ? state.selectedColor : 'custom';
             }
-            if (colorInput) colorInput.value = state.selectedColor;
+
+            if (colorInput) {
+                colorInput.value = state.selectedColor;
+            }
         }
 
         function updateAllDisplays() {
             updateMainTitles();
             updateShareTexts();
             applyDynamicStyling();
+            updateIllustrations();
         }
 
         function updateMainTitles() {
             const titleText = document.getElementById('mainTitle').value;
-            const lines = titleText.split('\n').filter(line => line.trim()).slice(0, 4);
+            const themeConfig = getThemeConfig(state.selectedTheme);
+            const maxLines = (themeConfig && Number.isFinite(themeConfig.maxTitleLines)) ? themeConfig.maxTitleLines : 4;
+            const lines = titleText.split('\n').slice(0, maxLines);
             
             // 更新所有主标题显示
             document.querySelectorAll('[data-target="main-title"]').forEach(titleDisplay => {
                 titleDisplay.innerHTML = '';
-                lines.forEach((line, index) => {
+                lines.forEach((line) => {
                     const span = document.createElement('span');
                     span.className = 'title-line';
-                    span.textContent = line.trim();
+                    const content = line.replace(/\r/g, '');
+                    if (content.length === 0) {
+                        span.innerHTML = '&nbsp;';
+                    } else {
+                        renderTextWithMarkdown(span, content);
+                    }
                     titleDisplay.appendChild(span);
                 });
             });
@@ -709,10 +1172,7 @@
             while (lines.length < 2) {
                 lines.push('');
             }
-            
-            // 每行最多4个字
-            const processedLines = lines.map(line => line.slice(0, 4));
-            
+
             // 更新所有分享文字显示
             document.querySelectorAll('[data-target="share-text"]').forEach(shareDisplay => {
                 const gridOverlay = shareDisplay.querySelector('.grid-overlay');
@@ -721,10 +1181,10 @@
                 shareDisplay.innerHTML = '';
                 shareDisplay.appendChild(gridOverlay);
                 
-                processedLines.forEach(line => {
+                lines.forEach(line => {
                     const div = document.createElement('div');
                     div.className = 'text-row';
-                    div.textContent = line;
+                    renderTextWithMarkdown(div, line.trim(), { maxChars: 4 });
                     shareDisplay.appendChild(div);
                 });
             });
@@ -733,8 +1193,20 @@
         function applyDynamicStyling() {
             const titleText = document.getElementById('mainTitle').value;
             // 仅动态调整字体大小，不改主题色，避免输入时颜色变化
-            const titleLines = titleText.split('\n').filter(line => line.trim());
-            const maxLineLength = Math.max(...titleLines.map(line => line.length));
+            const themeConfig = getThemeConfig(state.selectedTheme);
+            const themeKey = themeConfig?.key || resolveThemeKey(state.selectedTheme);
+            const maxLines = (themeConfig && Number.isFinite(themeConfig.maxTitleLines)) ? themeConfig.maxTitleLines : 4;
+            const titleLines = titleText.split('\n').slice(0, maxLines).filter(line => line.trim());
+
+            if (themeKey === 'apple-light') {
+                document.querySelectorAll('.title-main').forEach(titleMain => {
+                    titleMain.style.fontSize = '';
+                });
+                return;
+            }
+
+            const sanitized = titleLines.map(stripBoldSyntax);
+            const maxLineLength = sanitized.length ? Math.max(...sanitized.map(line => line.length)) : 0;
             
             let fontSize = 'clamp(20px, 3.5vw, 40px)';
             if (maxLineLength > 20) {
@@ -750,15 +1222,18 @@
         }
 
         // 更新主题色（仅在用户选择或点击随机时调用）
-        function setAccentColor(color) {
-            state.selectedColor = color;
-            document.documentElement.style.setProperty('--accent-green', color);
-            try { localStorage.setItem('themeColor', color); } catch (_) {}
+        function setHighlightColor(color) {
+            const normalized = String(color || '').toLowerCase();
+            const value = normalized || DEFAULT_HIGHLIGHT;
+            state.selectedColor = value;
+            document.documentElement.style.setProperty('--highlight-color', value);
+            setStoredValue(storageKeys.highlight, value);
         }
 
         async function downloadImage() {
             const zip = new JSZip();
             const containers = document.querySelectorAll('.cover-container');
+            const exportBg = getExportBackground();
 
             // 确保字体与布局就绪，避免文字丢失
             await waitForFonts();
@@ -773,7 +1248,7 @@
 
                     // 使用html-to-image替代html2canvas
                     const blob = await htmlToImage.toBlob(container, {
-                        backgroundColor: '#000000',
+                        backgroundColor: exportBg,
                         pixelRatio: 2,
                         cacheBust: true,
                         style: {
@@ -817,10 +1292,11 @@
 
             try {
                 await waitForFonts();
+                const exportBg = getExportBackground();
 
                 // 使用html-to-image替代html2canvas
                 const blob = await htmlToImage.toBlob(container, {
-                    backgroundColor: '#000000',
+                    backgroundColor: exportBg,
                     pixelRatio: 2,
                     cacheBust: true,
                     style: {
@@ -845,5 +1321,4 @@
         }
     </script>
 </body>
-</html>
 </html>
